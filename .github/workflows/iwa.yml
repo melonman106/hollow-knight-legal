@@ -1,0 +1,33 @@
+name: Generate IWA Signing Key
+
+on:
+  workflow_dispatch:
+
+jobs:
+  gen-key:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Generate Ed25519 key pair
+        run: |
+          openssl genpkey -algorithm Ed25519 -out private_key.pem
+          openssl pkey -in private_key.pem -pubout -out public_key.pem
+
+      - name: Base64-encode private key
+        run: base64 -w 0 private_key.pem > private_key.b64.txt
+
+      - name: Show keys in logs
+        run: |
+          echo "=== PUBLIC KEY ==="
+          cat public_key.pem
+          echo "=== BASE64 PRIVATE KEY ==="
+          cat private_key.b64.txt
+
+      - name: Upload keys as artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: iwa-keypair
+          path: |
+            private_key.pem
+            private_key.b64.txt
+            public_key.pem
+          retention-days: 1

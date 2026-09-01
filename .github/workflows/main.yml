@@ -24,7 +24,8 @@ jobs:
         run: npx wbn --dir ./ --output unsigned.wbn
 
       - name: Restore private key from GitHub Secrets
-run: printf '%s\n' "${{ secrets.IWA_PRIVATE_KEY }}" > private_key.pem
+        run: printf '%s\n' "${{ secrets.IWA_PRIVATE_KEY }}" > private_key.pem
+
       - name: Sign Web Bundle to create .swbn
         run: npx wbn-sign sign unsigned.wbn private_key.pem -o app.swbn
 

@@ -20,18 +20,26 @@ jobs:
       - name: Install dependencies
         run: npm install wbn wbn-sign
 
-      - name: Build unsigned Web Bundle
-        run: npx wbn --dir ./ --output unsigned.wbn
-
       - name: Restore private key from GitHub Secrets
         run: echo "${{ secrets.IWA_PRIVATE_KEY }}" | base64 -d > private_key.pem
 
       - name: Verify key is valid and unencrypted
         run: |
-          echo "--- File content (non-printable chars visible) ---"
-          cat -A private_key.pem
           echo "--- OpenSSL validation ---"
           openssl pkey -in private_key.pem -noout -text
+
+      - name: List files being bundled (sanity check)
+        run: |
+          echo "--- Files at bundle root (including hidden) ---"
+          ls -la .
+          echo "--- .well-known contents ---"
+          ls -la .well-known || echo ".well-known folder not found!"
+
+      - name: Build unsigned Web Bundle
+        run: >
+          npx wbn --dir ./
+          --baseURL "isolated-app://aqt5mf6pzyjo4p462gwjt7q6xefz4nbolqt4ijl4q6f7utr74gpaaaic/"
+          --output unsigned.wbn
 
       - name: Sign Web Bundle to create .swbn
         run: npx wbn-sign sign unsigned.wbn private_key.pem -o app.swbn

@@ -21,7 +21,7 @@ jobs:
         run: npm install wbn wbn-sign
 
       - name: Build unsigned Web Bundle
-        run: npx wbn --dir ./dist --output unsigned.wbn
+        run: npx wbn --dir ./ --output unsigned.wbn
 
       - name: Restore private key from GitHub Secrets
         run: echo "${{ secrets.IWA_PRIVATE_KEY }}" > private_key.pem

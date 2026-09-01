@@ -1,0 +1,36 @@
+name: Build Isolated Web App
+
+on:
+  push:
+    branches: [ main ]
+
+jobs:
+  build-swbn:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+
+      - name: Install dependencies
+        run: npm install wbn wbn-sign
+
+      - name: Build unsigned Web Bundle
+        run: npx wbn --dir ./dist --output unsigned.wbn
+
+      - name: Restore private key from GitHub Secrets
+        run: echo "${{ secrets.IWA_PRIVATE_KEY }}" > private_key.pem
+
+      - name: Sign Web Bundle to create .swbn
+        run: npx wbn-sign sign unsigned.wbn private_key.pem -o app.swbn
+
+      - name: Upload Signed Web Bundle artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: isolated-web-app
+          path: app.swbn
